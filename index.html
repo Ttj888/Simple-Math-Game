@@ -169,7 +169,21 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // Pure function to calculate the answer
+    const calculateAnswer = (num1, num2, operator) => {
+      switch (operator) {
+        case '+': return num1 + num2;
+        case '-': return num1 - num2;
+        case '*': return num1 * num2;
+        default: return 0;
+      }
+    };
+
+    // Preload audio files
+    const correctSound = new Audio('https://www.soundjay.com/button/beep-07.mp3');
+    const incorrectSound = new Audio('https://www.soundjay.com/button/beep-08.mp3');
 
     function App() {
       const [num1, setNum1] = useState(0);
@@ -182,11 +196,23 @@
       const [score, setScore] = useState(0);
       const [timeLeft, setTimeLeft] = useState(10);
       const [difficulty, setDifficulty] = useState('easy');
-      const [highScore, setHighScore] = useState(localStorage.getItem('highScore') || 0);
+      const [highScore, setHighScore] = useState(() => localStorage.getItem('highScore') || 0);
       const gameContainerRef = useRef(null);
+      const timerRef = useRef(null);
+
+      // Generate unique options
+      const generateOptions = useCallback((correct) => {
+        const uniqueOptions = new Set([correct]);
+        while (uniqueOptions.size < 9) {
+          const randomOffset = Math.floor(Math.random() * 10) - 5;
+          uniqueOptions.add(correct + randomOffset);
+        }
+        const shuffledOptions = Array.from(uniqueOptions).sort(() => Math.random() - 0.5);
+        setOptions(shuffledOptions);
+      }, []);
 
       // Generate a new math problem
-      const generateProblem = () => {
+      const generateProblem = useCallback(() => {
         let maxNum;
         switch (difficulty) {
           case 'easy':
@@ -210,7 +236,6 @@
         let tempNum1 = newNum1;
         let tempNum2 = newNum2;
 
-        // Ensure subtraction problems are non-negative
         if (newOperator === '-' && newNum2 > newNum1) {
           [tempNum1, tempNum2] = [newNum2, newNum1];
         }
@@ -219,67 +244,43 @@
         setNum2(tempNum2);
         setOperator(newOperator);
 
-        // Calculate the correct answer
         const newCorrectAnswer = calculateAnswer(tempNum1, tempNum2, newOperator);
         setCorrectAnswer(newCorrectAnswer);
         generateOptions(newCorrectAnswer);
         setSelectedAnswer(null);
-        setTimeLeft(10); // Reset timer
-      };
+        setTimeLeft(10);
+      }, [difficulty, generateOptions]);
 
-      // Calculate the correct answer
-      const calculateAnswer = (num1, num2, operator) => {
-        switch (operator) {
-          case '+': return num1 + num2;
-          case '-': return num1 - num2;
-          case '*': return num1 * num2;
-          default: return 0;
-        }
-      };
-
-      // Generate unique options
-      const generateOptions = (correct) => {
-        const uniqueOptions = new Set([correct]);
-        while (uniqueOptions.size < 9) {
-          const randomOffset = Math.floor(Math.random() * 10) - 5;
-          uniqueOptions.add(correct + randomOffset);
-        }
-        const shuffledOptions = Array.from(uniqueOptions).sort(() => Math.random() - 0.5);
-        setOptions(shuffledOptions);
-      };
-
-      // Check if the selected answer is correct
-      const checkAnswer = (selected) => {
+      // Check the selected answer
+      const checkAnswer = useCallback((selected) => {
         if (selected === correctAnswer) {
           setFeedback('Correct! 🎉');
-          setScore(score + 1);
-          playSound('https://www.soundjay.com/button/beep-07.mp3'); // Correct sound
+          setScore((prevScore) => prevScore + 1);
+          correctSound.play();
         } else {
           setFeedback(`Incorrect. The correct answer was ${correctAnswer}. 😢`);
-          playSound('https://www.soundjay.com/button/beep-08.mp3'); // Incorrect sound
+          incorrectSound.play();
         }
         generateProblem();
-      };
-
-      // Play sound effects
-      const playSound = (soundFile) => {
-        const audio = new Audio(soundFile);
-        audio.play();
-      };
+      }, [correctAnswer, generateProblem]);
 
       // Handle timer
       useEffect(() => {
-        const timer = setInterval(() => {
-          setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+        if (timerRef.current) clearInterval(timerRef.current);
+
+        timerRef.current = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev <= 1) {
+              setFeedback('Time’s up! 😢');
+              generateProblem();
+              return 10;
+            }
+            return prev - 1;
+          });
         }, 1000);
 
-        if (timeLeft === 0) {
-          setFeedback('Time’s up! 😢');
-          generateProblem();
-        }
-
-        return () => clearInterval(timer);
-      }, [timeLeft]);
+        return () => clearInterval(timerRef.current);
+      }, [generateProblem]);
 
       // Update high score
       useEffect(() => {
@@ -287,34 +288,37 @@
           setHighScore(score);
           localStorage.setItem('highScore', score);
         }
-      }, [score]);
+      }, [score, highScore]);
 
       // Initialize the game
       useEffect(() => {
         generateProblem();
+      }, [difficulty, generateProblem]);
+
+      // Handle mouse movement for 3D effect
+      useEffect(() => {
+        const handleMouseMove = (e) => {
+          if (!gameContainerRef.current) return;
+
+          const container = gameContainerRef.current;
+          const rect = container.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          const mouseX = e.clientX;
+          const mouseY = e.clientY;
+
+          const rotateX = (mouseY - centerY) / 40;
+          const rotateY = (mouseX - centerX) / 40;
+
+          container.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        };
+
         document.addEventListener('mousemove', handleMouseMove);
 
         return () => {
           document.removeEventListener('mousemove', handleMouseMove);
         };
-      }, [difficulty]);
-
-      // Handle mouse movement for 3D effect
-      const handleMouseMove = (e) => {
-        if (!gameContainerRef.current) return;
-
-        const container = gameContainerRef.current;
-        const rect = container.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
-
-        const rotateX = (mouseY - centerY) / 40;
-        const rotateY = (mouseX - centerX) / 40;
-
-        container.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-      };
+      }, []);
 
       return (
         <div className="App">
