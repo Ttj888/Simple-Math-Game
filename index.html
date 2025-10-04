@@ -8,8 +8,8 @@
         /* Add non-selectable text rules */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #050517;
-            color: #fff;
+            background-color: #1a1a2e; /* Darker, more purple background */
+            color: #e0e0e0; /* Softer white */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,16 +24,16 @@
         }
 
         .game-container {
-            background-color: rgba(10, 10, 30, 0.8);
+            background-color: rgba(26, 26, 46, 0.85); /* Slightly more opaque */
             padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(173, 216, 230, 0.3);
+            border-radius: 30px; /* Roundify */
+            box-shadow: none; /* Flat design */
             max-width: 400px;
             width: 100%;
             text-align: center;
             position: relative;
             z-index: 1;
-            border: 2px solid #00ffff;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
             transform-style: preserve-3d;
             transition: transform 0.2s ease-out;
             -webkit-user-select: none;
@@ -50,46 +50,46 @@
         }
 
         h1 {
-            color: #00ffff;
+            color: #f0a5d8; /* Softer pink */
             margin-bottom: 1rem;
             font-size: 2.5rem;
-            text-shadow: 0 0 10px #00ffff;
+            text-shadow: 0 0 8px rgba(240, 165, 216, 0.5); /* Subtle glow */
         }
 
         .problem {
             font-size: 2rem;
             margin: 1rem 0;
-            color: #fff;
-            text-shadow: 0 0 5px #00ffff;
+            color: #e0e0e0;
+            text-shadow: none; /* Flat design */
         }
 
         .options-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 15px; /* Increased gap */
             margin: 1rem 0;
         }
 
         .option-button {
             font-size: 1.2rem;
-            padding: 0.5rem 1rem;
-            background-color: rgba(30, 30, 70, 0.7);
-            color: #fff;
-            border: 1px solid #00ffff;
-            border-radius: 10px;
+            padding: 0.75rem 1rem; /* More padding */
+            background-color: transparent;
+            color: #c792ea; /* Soft purple */
+            border: 1px solid #c792ea;
+            border-radius: 20px; /* Roundify */
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, color 0.3s;
             margin-bottom: 0.5rem;
-            text-shadow: 0 0 5px #00ffff;
+            text-shadow: none; /* Flat design */
         }
 
         .option-button:hover {
-            background-color: rgba(50, 50, 100, 0.8);
+            background-color: rgba(199, 146, 234, 0.2); /* Subtle hover */
         }
 
         .option-button.selected {
-            background-color: #00ffff;
-            color: #050517;
+            background-color: #c792ea;
+            color: #1a1a2e;
             text-shadow: none;
         }
 
@@ -97,37 +97,35 @@
             font-size: 1.2rem;
             margin: 1rem 0;
             padding: 0.5rem;
-            border-radius: 10px;
+            border-radius: 15px; /* Roundify */
             animation: fadeIn 0.5s;
-            text-shadow: 0 0 5px #00ffff;
+            text-shadow: none; /* Flat design */
         }
 
         .correct {
-            color: #00ff00;
-            background-color: rgba(0, 100, 0, 0.3);
-            text-shadow: 0 0 5px #00ff00;
+            color: #a5d8f0; /* Soft blue for correct */
+            background-color: rgba(165, 216, 240, 0.1);
             animation: pop 0.5s;
         }
 
         .incorrect {
-            color: #ff0000;
-            background-color: rgba(100, 0, 0, 0.3);
-            text-shadow: 0 0 5px #ff0000;
+            color: #ff758f; /* Soft red for incorrect */
+            background-color: rgba(255, 117, 143, 0.1);
             animation: pop 0.5s;
         }
 
         .score {
             font-size: 1.5rem;
             margin: 1rem 0;
-            color: #00ffff;
-            text-shadow: 0 0 10px #00ffff;
+            color: #f0a5d8;
+            text-shadow: 0 0 8px rgba(240, 165, 216, 0.5); /* Subtle glow */
         }
 
         .timer {
             font-size: 1.2rem;
             margin: 1rem 0;
-            color: #ffcc00;
-            text-shadow: 0 0 5px #ffcc00;
+            color: #ffcc66; /* Softer yellow */
+            text-shadow: none; /* Flat design */
         }
 
         .difficulty-buttons {
@@ -137,18 +135,18 @@
         .difficulty-button {
             font-size: 1rem;
             padding: 0.5rem 1rem;
-            background-color: rgba(30, 30, 70, 0.7);
-            color: #fff;
-            border: 1px solid #00ffff;
-            border-radius: 10px;
+            background-color: transparent;
+            color: #c792ea;
+            border: 1px solid #c792ea;
+            border-radius: 15px; /* Roundify */
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, color 0.3s;
             margin: 0 0.5rem;
         }
 
         .difficulty-button.active {
-            background-color: #00ffff;
-            color: #050517;
+            background-color: #c792ea;
+            color: #1a1a2e;
         }
 
         @keyframes fadeIn {
@@ -158,7 +156,7 @@
 
         @keyframes pop {
             0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+            50% { transform: scale(1.1); } /* Softer pop */
             100% { transform: scale(1); }
         }
     </style>
